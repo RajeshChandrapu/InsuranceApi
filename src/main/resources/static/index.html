@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INSURANCE PLAN</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-image: url('https://www.shutterstock.com/image-photo/hand-interacting-medical-icons-projected-over-2452963073'); /* Add your background image here */
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Insurance Plans</h1>
+        </div>
+        <form id="planForm">
+            <div class="form-group">
+                <label for="planname">Plan Name</label>
+                <input type="text" class="form-control" id="planname" required>
+            </div>
+            <div class="form-group">
+                <label for="planstartdate">Start Date</label>
+                <input type="date" class="form-control" id="planstartdate" required>
+            </div>
+            <div class="form-group">
+                <label for="planenddate">End Date</label>
+                <input type="date" class="form-control" id="planenddate" required>
+            </div>
+            <div class="form-group">
+                <label for="plancategorey">Category</label>
+                <select class="form-control" id="plancategorey" required>
+                    <option value="FOOD">Food</option>
+                    <option value="CHILDCARE">Childcare</option>
+                    <option value="UNEMPLOYMENT">Unemployment</option>
+                    <option value="HEALTH">Health</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Plan</button>
+        </form>
+
+        <div class="mt-4">
+            <h2>Existing Plans</h2>
+            <ul id="plansList" class="list-group">
+                <!-- Plans will be dynamically added here -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Function to get all plans and display them
+            function fetchPlans() {
+                $.get('/api/plans', function (data) {
+                    $('#plansList').empty();
+                    data.forEach(function (plan) {
+                        $('#plansList').append(`
+                            <li class="list-group-item">
+                                <strong>${plan.planname}</strong><br>
+                                Start Date: ${plan.planstartdate}<br>
+                                End Date: ${plan.planenddate}<br>
+                                Category: ${plan.plancategorey}<br>
+                                Created By: ${plan.createdBy}<br>
+                                Updated By: ${plan.updatedBy}
+                            </li>
+                        `);
+                    });
+                });
+            }
+
+            // Fetch plans on page load
+            fetchPlans();
+
+            // Handle form submission
+            $('#planForm').on('submit', function (e) {
+                e.preventDefault();
+
+                const planData = {
+                    planname: $('#planname').val(),
+                    planstartdate: $('#planstartdate').val(),
+                    planenddate: $('#planenddate').val(),
+                    plancategorey: $('#plancategorey').val()
+                };
+
+                $.post('/api/plans/add', planData, function (response) {
+                    alert('Plan saved successfully!');
+                    fetchPlans(); // Refresh the list
+                    $('#planForm')[0].reset(); // Reset form
+                }).fail(function (xhr) {
+                    alert('Error saving plan: ' + xhr.responseText);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
